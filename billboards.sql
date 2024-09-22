@@ -3,6 +3,7 @@
 2 - Quantos albuns tem cada artista?
 3 - Qual a média de duração geral e por cada artista?
 4 - Qual a afinação mais usada? 0: 'C', 1: 'C#', 2: 'D', 3: 'D#', 4: 'E', 5: 'F', 6: 'F#', 7: 'G', 8: 'G#', 9: 'A', 10: 'A#', 11: 'B'
+5 - Qual a afinação mais usada por artista
 */
 SELECT * from hot100;
 
@@ -48,9 +49,39 @@ SELECT Artist, count(Album) from hot100
 group by Artist
 Order by Count(Album) DESC;
 
--- 3 - Qual a média de duração geral e por cada artista?
+-- 3 - Qual a média de duração geral e por cada artista? E a geral?
 
+SELECT Artist, sec_to_time(AVG(Duration_t)) from hot100
+group by Artist;
 
+select sec_to_time(AVG(Duration_t)) from hot100; 
 
+-- Exercício 4 - Qual a afinação mais usada? 0: 'C', 1: 'C#', 2: 'D', 3: 'D#', 4: 'E', 5: 'F', 6: 'F#', 7: 'G', 8: 'G#', 9: 'A', 10: 'A#', 11: 'B'
 
- 
+-- Criar uma tabela para inserir as afinações
+ALTER TABLE hot100
+ADD COLUMN Tuning VARCHAR(2);
+
+SET SQL_SAFE_UPDATES = 0;
+update hot100
+SET Tuning = Case
+    WHEN `Key` = 0 THEN 'C'
+    WHEN `Key` = 1 THEN 'C#'
+    WHEN `Key` = 2 THEN 'D'
+    WHEN `Key` = 3 THEN 'D#'
+    WHEN `Key` = 4 THEN 'E'
+    WHEN `Key` = 5 THEN 'F'
+    WHEN `Key` = 6 THEN 'F#'
+    WHEN `Key` = 7 THEN 'G'
+    WHEN `Key` = 8 THEN 'G#'
+    WHEN `Key` = 9 THEN 'A'
+    WHEN `Key` = 10 THEN 'A#'
+    WHEN `Key` = 11 THEN 'B'
+END;
+
+-- Estava com problemas com o nome da coluna sendo Key, alterei para a coluna Chave, para facilitar as consultas
+ALTER TABLE hot100
+RENAME COLUMN `Key` TO Chave;
+
+SELECT Artist, Tuning, avg(Chave)
+From hot100
