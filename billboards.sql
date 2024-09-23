@@ -3,7 +3,8 @@
 2 - Quantos albuns tem cada artista?
 3 - Qual a média de duração geral e por cada artista?
 4 - Qual a afinação mais usada? 0: 'C', 1: 'C#', 2: 'D', 3: 'D#', 4: 'E', 5: 'F', 6: 'F#', 7: 'G', 8: 'G#', 9: 'A', 10: 'A#', 11: 'B'
-5 - Qual a afinação mais usada por artista
+5 - Qual a afinação média usada por artista
+6 - Qual a afinação mais usada por artista?
 */
 SELECT * from hot100;
 
@@ -83,5 +84,114 @@ END;
 ALTER TABLE hot100
 RENAME COLUMN `Key` TO Chave;
 
-SELECT Artist, Tuning, avg(Chave)
+SELECT round(avg(Chave)), CASE
+	WHEN round(avg(Chave)) = 0 THEN 'C'
+    WHEN round(avg(Chave)) = 2 THEN 'D'
+    WHEN round(avg(Chave)) = 3 THEN 'D#'
+    WHEN round(avg(Chave)) = 4 THEN 'E'
+    WHEN round(avg(Chave)) = 5 THEN 'F'
+    WHEN round(avg(Chave)) = 6 THEN 'F#'
+    WHEN round(avg(Chave)) = 7 THEN 'G'
+    WHEN round(avg(Chave)) = 8 THEN 'G#'
+    WHEN round(avg(Chave)) = 9 THEN 'A'
+    WHEN round(avg(Chave)) = 10 THEN 'A#'
+    WHEN round(avg(Chave)) = 11 THEN 'B'
+END AS Avg_Tuning
+From hot100;
+
+-- Exercício 5 - Qual a afinação média usada por artista?
+SELECT Artist, round(avg(Chave)) , CASE
+	WHEN round(avg(Chave)) = 0 THEN 'C'
+    WHEN round(avg(Chave)) = 2 THEN 'D'
+    WHEN round(avg(Chave)) = 3 THEN 'D#'
+    WHEN round(avg(Chave)) = 4 THEN 'E'
+    WHEN round(avg(Chave)) = 5 THEN 'F'
+    WHEN round(avg(Chave)) = 6 THEN 'F#'
+    WHEN round(avg(Chave)) = 7 THEN 'G'
+    WHEN round(avg(Chave)) = 8 THEN 'G#'
+    WHEN round(avg(Chave)) = 9 THEN 'A'
+    WHEN round(avg(Chave)) = 10 THEN 'A#'
+    WHEN round(avg(Chave)) = 11 THEN 'B'
+END AS Avg_Tuning
 From hot100
+Group by Artist;
+
+-- 5 - Qual a afinação mais usada por artista
+
+Select count(Chave),Chave
+from hot100
+group by chave
+order by chave;
+	
+-- chatgpt solução
+SELECT Artist, Most_Tuning, MAX(Chave_Contagem) AS Contagem
+FROM (
+    SELECT Artist, 
+           CASE
+               WHEN Chave = 0 THEN 'C'
+               WHEN Chave = 1 THEN 'C#'
+               WHEN Chave = 2 THEN 'D'
+               WHEN Chave = 3 THEN 'D#'
+               WHEN Chave = 4 THEN 'E'
+               WHEN Chave = 5 THEN 'F'
+               WHEN Chave = 6 THEN 'F#'
+               WHEN Chave = 7 THEN 'G'
+               WHEN Chave = 8 THEN 'G#'
+               WHEN Chave = 9 THEN 'A'
+               WHEN Chave = 10 THEN 'A#'
+               WHEN Chave = 11 THEN 'B'
+           END AS Most_Tuning,
+           COUNT(*) AS Chave_Contagem
+    FROM hot100
+    GROUP BY Artist, Chave
+) AS Subquery
+GROUP BY Artist, Most_Tuning
+ORDER BY Contagem DESC;
+
+-- entendendo a subquery anterior
+
+SELECT Artist, 
+           CASE
+               WHEN Chave = 0 THEN 'C'
+               WHEN Chave = 1 THEN 'C#'
+               WHEN Chave = 2 THEN 'D'
+               WHEN Chave = 3 THEN 'D#'
+               WHEN Chave = 4 THEN 'E'
+               WHEN Chave = 5 THEN 'F'
+               WHEN Chave = 6 THEN 'F#'
+               WHEN Chave = 7 THEN 'G'
+               WHEN Chave = 8 THEN 'G#'
+               WHEN Chave = 9 THEN 'A'
+               WHEN Chave = 10 THEN 'A#'
+               WHEN Chave = 11 THEN 'B'
+           END AS Most_Tuning,
+           COUNT(*) AS Chave_Contagem
+    FROM hot100
+    GROUP BY Artist, Chave;
+
+-- Executando depois de aprender a aplicação do chat GPT
+
+select Artist, chaves_af, max(contagem)
+from (SELECT Artist, Case 
+		WHEN Chave = 0 THEN 'C'
+		WHEN Chave = 1 THEN 'C#'
+		WHEN Chave = 2 THEN 'D'
+		WHEN Chave = 3 THEN 'D#'
+		WHEN Chave = 4 THEN 'E'
+		WHEN Chave = 5 THEN 'F'
+		WHEN Chave = 6 THEN 'F#'
+		WHEN Chave = 7 THEN 'G'
+		WHEN Chave = 8 THEN 'G#'
+		WHEN Chave = 9 THEN 'A'
+		WHEN Chave = 10 THEN 'A#'
+		WHEN Chave = 11 THEN 'B'
+		End as chaves_af,
+		count(*) as contagem
+	from hot100
+	group by artist, chaves_af
+) as subquery
+group by Artist, chaves_af
+order by contagem;
+
+
+
