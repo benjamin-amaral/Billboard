@@ -190,8 +190,24 @@ from (SELECT Artist, Case
 	from hot100
 	group by artist, chaves_af
 ) as subquery
-group by Artist, chaves_af
+group by Artist, contagem, chaves_af
 order by contagem;
 
+-- resposta correta pelo GROQ
 
+SELECT Artist, Tuning
+FROM (
+    SELECT Artist, Tuning, COUNT(Tuning) as Contagem, ROW_NUMBER() OVER (PARTITION BY Artist ORDER BY COUNT(Tuning) DESC) as RowNum
+    FROM hot100
+    GROUP BY Artist, Tuning
+) AS subquery
+WHERE RowNum = 1;
 
+-- executando a resolução do exercício com o row numb
+
+SELECT Artist, Tuning
+from(
+	Select Artist, Tuning, count(Tuning) as contagem, ROW_NUMBER() OVER (PARTITION BY Artist ORDER BY COUNT(Tuning) DESC) AS Rownum
+    from hot100
+    group by Artist, Tuning) as subquery
+where rownum=1;
